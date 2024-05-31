@@ -6,7 +6,7 @@ const {crearRoomie} = require('./roommates.js');
 const express = require("express");
 const app = express();
 // //Axios
-// const axios = require('axios');
+const axios = require('axios');
 // módulo File System 
 const fs = require('fs');
 //uuid genera un id unico de 36 caracteres
@@ -27,79 +27,24 @@ app.get('/', (req, res) => {
     res.sendFile(__dirname + "/index.html");
 });
 
-//////////////////////////////////////////////////////////////////
-//calcular debe recibe total
-
-let monto;
-let cuota;
-// let finanza;
-// let recibeMonto;
-// let debeMonto;
-
-async function calculo() {
-    const { gastos } = JSON.parse(fs.readFileSync("gastos.json", "utf8"));
-    let roommatesData = JSON.parse(fs.readFileSync("roommates.json", "utf8"));
-    // console.log('monto', gastosData.gastos[0].monto) //el unico gasto que hay
-    let totalMontos = gastos.reduce((total, gasto) => total + gasto.monto, 0);
-    //para identificar comprador
-    // monto = totalMontos;
-    cuota = totalMontos / roommatesData.roommates.length;
-
-    roommatesData.roommates.forEach(r => {
-        let recibeMonto = 0;
-        let debeMonto = 0;
-        gastos.forEach(gasto => {
-            if (gasto.roommate === r.nombre) {
-                console.log('cuot',cuota)
-                console.log(roommatesData.roommates.length)
-                recibeMonto = cuota * (roommatesData.roommates.length - 1);
-                // debeMonto = cuota;
-            } else {
-                debeMonto = cuota;
-            }
-        });
-
-        r.debe = debeMonto;
-        r.recibe = recibeMonto;
-        r.total = recibeMonto - debeMonto;
-
-        console.log(`Finanza para ${r.nombre}:`, { debe: r.debe, recibe: r.recibe, total: r.total });
-    });
-    // return roommatesData.roommates;
-    // fs.writeFileSync("roomates.json", JSON.stringify(roommatesData, null, 2));
-
-}
-
-// let finanza;
-// calculo().then(result => {
-//     finanza = result;
-//     console.log('Roommates data outside the function:', finanza[0]);
-//     // Ahora puedes usar la variable `roommates` como desees
-// });
-// console.log(roommates)
-// console.log('total montos', monto)
-// console.log('pa cada uno', recibeMonto, debeMonto);
-
-//////////////////////////////////////////////////////////////////
-
 // /roommate POST  
 app.post('/roommate', async (req, res) => {
     // ruta POST /roommate en el servidor que ejecute una función asíncrona importada de un archivo externo al del servidor 
     try {
         await crearRoomie();
-        res.status(200).json(roommate);
+        res.json({roommate});
     } catch (error) {
         const mensaje = "Error al obtener datos de la API";
         // manejoErrores(res,error,mensaje);
-        // console.error("Error al obtener datos de la API:", error);
-        // res.status(500).json({ error: "Error interno del servidor" });
+        console.error("Error al obtener datos de la API:", error);
+        res.status(500).json({ error: "Error interno del servidor" });
     }
 });
 
 // /roomate get Devolver todos los roommates almacenados. 
 app.get('/roommates', (req, res) => {
     try {
-        const roommatesData = JSON.parse(fs.readFileSync("roommates.json", "utf8"));
+        const roommatesData = JSON.parse(fs.readFileSync("./data/roommates.json", "utf8"));
         console.log(roommatesData)
         // Enviar los datos como respuesta
         res.status(200).json(roommatesData);
@@ -121,7 +66,7 @@ app.post('/gasto', (req, res) => {
 
 
         // Leer los datos existentes del archivo gastos.json
-        let gastosData = JSON.parse(fs.readFileSync("gastos.json", "utf8"));
+        let gastosData = JSON.parse(fs.readFileSync("./data/gastos.json", "utf8"));
 
         // Crear un nuevo objeto de gasto
         const nuevoGasto = {
@@ -136,7 +81,7 @@ app.post('/gasto', (req, res) => {
         gastosData.gastos.push(nuevoGasto);
 
         // Escribir los datos actualizados en el archivo gastos.json
-        fs.writeFileSync("gastos.json", JSON.stringify(gastosData, null, 2));
+        fs.writeFileSync("./data/gastos.json", JSON.stringify(gastosData, null, 2));
 
         // Enviar una respuesta de éxito
         res.status(201).json({ message: "Gasto agregado correctamente", nuevoGasto });
@@ -153,7 +98,7 @@ app.post('/gasto', (req, res) => {
 app.get('/gastos', (req, res) => {
     try {
         // Leer los datos del archivo gastos.json
-        const gastosData = JSON.parse(fs.readFileSync("gastos.json", "utf8"));
+        const gastosData = JSON.parse(fs.readFileSync("./data/gastos.json", "utf8"));
         console.log(gastosData)
         // Enviar los datos como respuesta
         res.status(200).json(gastosData);
@@ -175,7 +120,7 @@ app.put('/gasto', (req, res) => {
         const { roommate, descripcion, monto } = req.body;
 
         // Leer los datos existentes del archivo gastos.json
-        let gastosData = JSON.parse(fs.readFileSync("gastos.json", "utf8"));
+        let gastosData = JSON.parse(fs.readFileSync("./data/gastos.json", "utf8"));
 
         // Buscar el índice del gasto a actualizar en el array de gastos
         const index = gastosData.gastos.findIndex(gasto => gasto.id === gastoId);
@@ -194,7 +139,7 @@ app.put('/gasto', (req, res) => {
         };
 
         // Escribir los datos actualizados en el archivo gastos.json
-        fs.writeFileSync("gastos.json", JSON.stringify(gastosData, null, 2));
+        fs.writeFileSync("./data/gastos.json", JSON.stringify(gastosData, null, 2));
 
         // Enviar una respuesta de éxito
         res.status(200).json({ message: "Gasto actualizado correctamente", gastoActualizado: gastosData.gastos[index] });
@@ -213,13 +158,13 @@ app.delete('/gasto', (req, res) => {
         const gastoId = req.query.id;
 
         // Leer los datos existentes del archivo gastos.json
-        let gastosData = JSON.parse(fs.readFileSync("gastos.json", "utf8"));
+        let gastosData = JSON.parse(fs.readFileSync("./data/gastos.json", "utf8"));
 
         // Filtrar los gastos para eliminar el gasto con el ID proporcionado
         gastosData.gastos = gastosData.gastos.filter(gasto => gasto.id !== gastoId);
 
         // Escribir los datos actualizados en el archivo gastos.json
-        fs.writeFileSync("gastos.json", JSON.stringify(gastosData, null, 2));
+        fs.writeFileSync("./data/gastos.json", JSON.stringify(gastosData, null, 2));
 
         // Enviar una respuesta de éxito
         res.status(200).json({ message: "Gasto eliminado correctamente" });
@@ -234,7 +179,7 @@ app.delete('/gasto', (req, res) => {
 // Ruta genérica
 app.get('*', async (req, res) => {
     try {
-        res.status(200).redirect('/rutaalgo');
+        res.status(200).redirect('/');
     } catch (error) {
         const mensaje = "Servidor caído, intente más tarde por favor. Disculpe las molestias. </3";
         // manejoErrores(res,error,mensaje);

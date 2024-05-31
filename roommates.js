@@ -26,15 +26,14 @@ async function crearRoomie(){
         console.log('Roommate creado:', roommate);
 
         // Leer el archivo roomates.json
-        let roommatesData = JSON.parse(fs.readFileSync("roommates.json", "utf8"));
+        let roommatesData = JSON.parse(fs.readFileSync("./data/roommates.json", "utf8"));
 
         // Agregar el nuevo compañero de cuarto al array
         roommatesData.roommates.push(roommate);
 
         // Escribir de nuevo todo en el archivo roomates.json
-        fs.writeFileSync("roommates.json", JSON.stringify(roommatesData, null, 2)); //ese null 2 hace que se mantenga el formato¿¿¿??
+        fs.writeFileSync("./data/roommates.json", JSON.stringify(roommatesData, null, 2)); //ese null 2 hace que se mantenga el formato¿¿¿??
 
-     
 }
 
 module.exports = {crearRoomie};
