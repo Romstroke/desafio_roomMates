@@ -218,7 +218,7 @@ Articulos de limpieza</textarea
         const roommateSelected = $("#roommatesSelect").val();
         const descripcion = $("#descripcion").val();
         const monto = Number($("#monto").val());
-        console.log('las3',roommateSelected,descripcion,monto)
+        // console.log('las3',roommateSelected,descripcion,monto)
         await fetch("http://localhost:3000/gasto", {
           method: "POST",
           headers: {"Content-Type":"application/json"},
