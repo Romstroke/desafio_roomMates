@@ -1,3 +1,18 @@
 {
-  "gastos": []
+  "gastos": [
+    {
+      "id": "f23754",
+      "roommate": "Elijah Davies",
+      "descripcion": "Articulos de limpieza",
+      "monto": 15000,
+      "fecha": ""
+    },
+    {
+      "id": "5c2202",
+      "roommate": "Elijah Davies",
+      "descripcion": "Articulos de limpieza",
+      "monto": 15000,
+      "fecha": ""
+    }
+  ]
 }
